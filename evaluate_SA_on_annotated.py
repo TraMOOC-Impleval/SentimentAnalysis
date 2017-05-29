@@ -2,8 +2,11 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import numpy as np
 import csv
 from afinn import Afinn
+import sys
 
-DEBUG = True
+DEBUG = False
+
+infilename = sis.argv[1]
 
 VADERNEGTHRES = -0.45
 VADERPOSTHRES = 0.35
@@ -174,7 +177,7 @@ def print_error_analysis(Ypred, Ytrue, posts, m, logfilename = 'error_analysis.t
 
 
 
-golden = read_csv_file('upvoted.tab', DEBUG)
+golden = read_csv_file(infilename)
 header_golden = golden[0]
 topiclabels = golden[1:,1]
 forumposts = golden[1:,5]
