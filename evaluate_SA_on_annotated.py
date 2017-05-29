@@ -6,7 +6,7 @@ import sys
 
 DEBUG = False
 
-infilename = sis.argv[1]
+infilename = sys.argv[1]
 
 '''
 VADER gives every text a score for its sentiment. These thresholds are determined by a grid-search. They are tuned on the Semeval 2017 task 4 benchmark dataset.
