@@ -8,18 +8,28 @@ DEBUG = False
 
 infilename = sis.argv[1]
 
-VADERNEGTHRES = -0.45
+'''
+VADER gives every text a score for its sentiment. These thresholds are determined by a grid-search. They are tuned on the Semeval 2017 task 4 benchmark dataset.
+Every value below the negthres will be classified as negative. Every value above posthres will be classified as positive. Every value in between is neutral.
+'''
+VADERNEGTHRES = -0.45 
 VADERPOSTHRES = 0.35
 
+'''
+Afinn also gives a sentiment score. Thresholds are also tuned on the Semeval 2017 task 4 benchmark dataset.
+It turned out that the best settings were:
+score = 0 --> neutral
+score > 0 --> positive
+score < 0 --> negative
+'''
 AFINNNEGTHRES = 0
 AFINNPOSTHRES = 0
 
-def read_csv_file(filename, debug = False):
+def read_csv_file(filename):
     '''
 
-    :param filename:
-    :param debug:
-    :return:
+    :param filename: name of the file to read
+    :return: np-array with the data
     '''
     with open(filename) as f:
         reader = csv.reader(f, dialect="excel-tab")
@@ -27,18 +37,17 @@ def read_csv_file(filename, debug = False):
 
     data = np.array(data)
 
-    if debug:
-        print('Data loaded. Shape: {}'.format(data.shape))
+    if DEBUG: print('Data loaded. Shape: {}'.format(data.shape))
 
     return data
 
 
-def do_VADER_SA(sentences, negthres, posthres):
+def do_VADER_SA(texts, negthres, posthres):
     analyzer = SentimentIntensityAnalyzer()
     annotated = []
 
-    for sentence in sentences:
-        vs = analyzer.polarity_scores(sentence)
+    for text in texts:
+        vs = analyzer.polarity_scores(text)
         compound = vs['compound']
         if compound < negthres:
             annotated.append('n')
@@ -51,12 +60,12 @@ def do_VADER_SA(sentences, negthres, posthres):
 
 
 
-def do_afinn_SA(sentences, negthres, posthres):
+def do_afinn_SA(texts, negthres, posthres):
     analyzer = Afinn()
     annotated = []
 
-    for sentence in sentences:
-        compound = analyzer.score(sentence)
+    for text in texts:
+        compound = analyzer.score(text)
 
         if compound < negthres:
             annotated.append('n')
@@ -70,9 +79,9 @@ def do_afinn_SA(sentences, negthres, posthres):
 def make_confmat(listA, listB):
     '''
 
-    :param listA:
-    :param listB:
-    :return:
+    :param listA: list of labels
+    :param listB: list of predictions
+    :return: np_array:  confusion matrix
     '''
 
     all_labels = set(list(listA) + list(listB))
@@ -190,7 +199,6 @@ print(get_confmatstring(m))
 evaluate_sentiment_analysis(m)
 
 print_error_analysis(vader_SA_labs, topiclabels, forumposts, m, logfilename='error_analysis_VADER.txt')
-
 
 
 Afinn_SA_labs = do_afinn_SA(forumposts, AFINNNEGTHRES, AFINNPOSTHRES)
